@@ -1,0 +1,34 @@
+{
+  "name": "mimosa-logger",
+  "preferGlobal": "false",
+  "version": "0.0.1",
+  "homepage": "http://www.mimosajs.com",
+  "author": "David Bashford",
+  "description": "Logger module for Mimosa browser development workflow tool",
+  "contributors": [
+    {
+      "name": "David Bashford",
+      "email": "dbashford@hotmail.com"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dbashford/mimosa-logger"
+  },
+  "keywords": [
+    "mimosa",
+    "mmodule",
+    "logger",
+    "logging",
+    "growl"
+  ],
+  "dependencies": {
+    "growl": "1.6.0",
+    "date-utils": "1.2.11",
+    "ansi-color": "0.2.1"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=0.8"
+  }
+}
