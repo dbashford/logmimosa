@@ -11,7 +11,7 @@ class Logger
   setConfig: (config) -> @config = config.growl
   buildDone: (@isStartup = false) =>
 
-  log: (logLevel, message, color, growlTitle = null) ->
+  _log: (logLevel, message, color, growlTitle = null) ->
     if growlTitle?
       imageUrl = switch logLevel
         when 'success' then "#{__dirname}/assets/success.png"
@@ -21,24 +21,24 @@ class Logger
 
       growl message, {title: growlTitle, image: imageUrl}
 
-    message = @wrap(message, color)
+    message = @_wrap(message, color)
 
     if logLevel is 'error' or logLevel is 'warn' or logLevel is 'fatal'
       console.error message
     else
       console.log message
 
-  wrap: (message, textColor) -> color("#{new Date().toFormat('HH24:MI:SS')} - #{message}", textColor)
+  _wrap: (message, textColor) -> color("#{new Date().toFormat('HH24:MI:SS')} - #{message}", textColor)
 
   blue:  (message) => console.log color(message, "blue+bold")
   green: (message) => console.log color(message, "green+bold")
   red:   (message) => console.log color(message, "red+bold")
 
-  error: (message) => @log 'error', message, 'red+bold', 'Error'
-  warn:  (message) => @log 'warn',  message, 'yellow'
-  info:  (message) => @log 'info',  message, 'black'
-  fatal: (message) => @log 'fatal', "FATAL: #{message}", 'red+bold+underline', "Fatal Error"
-  debug: (message) => @log 'debug', "#{message}", 'blue' if @isDebug
+  error: (message) => @_log 'error', message, 'red+bold', 'Error'
+  warn:  (message) => @_log 'warn',  message, 'yellow'
+  info:  (message) => @_log 'info',  message, 'black'
+  fatal: (message) => @_log 'fatal', "FATAL: #{message}", 'red+bold+underline', "Fatal Error"
+  debug: (message) => @_log 'debug', "#{message}", 'blue' if @isDebug
 
   success: (message, options) =>
     title = if options is true
@@ -58,6 +58,51 @@ class Logger
     else
       "Success"
 
-    @log 'success', message, 'green+bold', title
+    @_log 'success', message, 'green+bold', title
+
+  defaults: ->
+    growl:
+      onStartup: false
+      onSuccess:
+        javascript: true
+        css: true
+        template: true
+        copy: true
+
+  placeholder: ->
+    """
+    \t
+
+      # growl:
+        # onStartup: false                    # Controls whether or not to Growl when assets successfully compile/copy on startup,
+                                              # If you've got 100 CoffeeScript files, and you do a clean and then start watching,
+                                              # you'll get 100 Growl notifications.  This is set to false by default to prevent that.
+                                              # Growling for every successful file on startup can also cause EMFILE issues. See watch.throttle
+        # onSuccess:                          # Controls whether or not to Growl when assets successfully compile/copy
+          # javascript: true                  # send growl notification on successful compilation? will always send on failure
+          # css: true                         # send growl notification on successful compilation? will always send on failure
+          # template: true                    # send growl notification on successful compilation? will always send on failure
+          # copy: true                        # send growl notification on successful copy?
+    """
+
+  validate: (config) ->
+    errors = []
+    if config.growl?
+      if typeof config.growl is "object"
+        if config.growl.onStartup?
+          unless typeof config.growl.onStartup is "boolean"
+            errors.push "growl.onStartup must be boolean"
+        if config.growl.onSuccess?
+          succ = config.growl.onSuccess
+          if typeof succ is "object"
+            for type in ["javascript", "css", "template", "copy"]
+              if succ[type]?
+                unless typeof succ[type] is "boolean"
+                  errors.push "growl.onSuccess.#{type} must be boolean."
+          else
+            errors.push "growl.onSuccess must be an object."
+      else
+        errors.push "lint configuration must be an object."
+    errors
 
 module.exports = new Logger
