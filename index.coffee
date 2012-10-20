@@ -88,13 +88,13 @@ class Logger
   validate: (config) ->
     errors = []
     if config.growl?
-      if typeof config.growl is "object"
+      if typeof config.growl is "object" and not Array.isArray(config.growl)
         if config.growl.onStartup?
           unless typeof config.growl.onStartup is "boolean"
             errors.push "growl.onStartup must be boolean"
         if config.growl.onSuccess?
           succ = config.growl.onSuccess
-          if typeof succ is "object"
+          if typeof succ is "object" and not Array.isArray(succ)
             for type in ["javascript", "css", "template", "copy"]
               if succ[type]?
                 unless typeof succ[type] is "boolean"
