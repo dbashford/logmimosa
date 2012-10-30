@@ -36,7 +36,7 @@ class Logger
 
   error: (message) => @_log 'error', message, 'red+bold', 'Error'
   warn:  (message) => @_log 'warn',  message, 'yellow'
-  info:  (message) => @_log 'info',  message, 'black'
+  info:  (message) => console.log "#{new Date().toFormat('HH24:MI:SS')} - #{message}"
   fatal: (message) => @_log 'fatal', "FATAL: #{message}", 'red+bold+underline', "Fatal Error"
   debug: (message) => @_log 'debug', "#{message}", 'blue' if @isDebug
 
