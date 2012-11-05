@@ -74,15 +74,17 @@ class Logger
     \t
 
       # growl:
-        # onStartup: false                    # Controls whether or not to Growl when assets successfully compile/copy on startup,
-                                              # If you've got 100 CoffeeScript files, and you do a clean and then start watching,
-                                              # you'll get 100 Growl notifications.  This is set to false by default to prevent that.
-                                              # Growling for every successful file on startup can also cause EMFILE issues. See watch.throttle
-        # onSuccess:                          # Controls whether or not to Growl when assets successfully compile/copy
-          # javascript: true                  # send growl notification on successful compilation? will always send on failure
-          # css: true                         # send growl notification on successful compilation? will always send on failure
-          # template: true                    # send growl notification on successful compilation? will always send on failure
-          # copy: true                        # send growl notification on successful copy?
+        # onStartup: false       # Controls whether or not to Growl when assets successfully
+                                 # compile/copy on startup, If you've got 100 CoffeeScript files,
+                                 # and you do a clean and then start watching, you'll get 100 Growl
+                                 # notifications.  This is set to false by default to prevent that.
+                                 # Growling for every successful file on startup can also cause
+                                 # EMFILE issues. See watch.throttle
+        # onSuccess:             # Controls whether to Growl when assets successfully compile/copy
+          # javascript: true     # growl on successful compilation? will always send on failure
+          # css: true            # growl on successful compilation? will always send on failure
+          # template: true       # growl on successful compilation? will always send on failure
+          # copy: true           # growl on successful copy?
     """
 
   validate: (config) ->
