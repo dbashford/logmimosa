@@ -1,7 +1,7 @@
 {
   "name": "logmimosa",
   "preferGlobal": "false",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "homepage": "http://www.mimosajs.com",
   "author": "David Bashford",
   "description": "Logger component for Mimosa browser development workflow tool",
@@ -21,8 +21,8 @@
     "mmodule"
   ],
   "dependencies": {
-    "growl": "1.6.1",
-    "date-utils": "1.2.11",
+    "growl": "1.7.0",
+    "date-utils": "1.2.12",
     "ansi-color": "0.2.1"
   },
   "license": "MIT",

@@ -19,7 +19,8 @@ class Logger
         when 'fatal' then "#{__dirname}/assets/failed.png"
         else ''
 
-      growl message, {title: growlTitle, image: imageUrl}
+      growlMessage = message.replace /\n/g, ''
+      growl growlMessage, {title: growlTitle, image: imageUrl}
 
     message = @_wrap(message, color)
 
