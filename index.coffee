@@ -11,7 +11,7 @@ class Logger
   setConfig: (config) -> @config = config.growl
   buildDone: (@isStartup = false) =>
 
-  _log: (logLevel, message, color, growlTitle = null) ->
+  _log: (logLevel, messages, color, growlTitle = null) ->
     if growlTitle?
       imageUrl = switch logLevel
         when 'success' then "#{__dirname}/assets/success.png"
@@ -19,29 +19,53 @@ class Logger
         when 'fatal' then "#{__dirname}/assets/failed.png"
         else ''
 
-      growlMessage = message.replace /\n/g, ''
+      growlMessage = messages.join(",").replace /\n/g, ''
       growl growlMessage, {title: growlTitle, image: imageUrl}
 
-    message = @_wrap(message, color)
+    messages = @_wrap(messages, color)
 
     if logLevel is 'error' or logLevel is 'warn' or logLevel is 'fatal'
-      console.error message
+      console.error messages...
     else
-      console.log message
+      console.log messages...
 
-  _wrap: (message, textColor) -> color("#{new Date().toFormat('HH24:MI:SS')} - #{message}", textColor)
+  _wrap: (messages, textColor) ->
+    messages[0] = "#{new Date().toFormat('HH24:MI:SS')} - " + messages[0]
+    messages.map (message) -> color message, textColor
 
-  blue:  (message) => console.log color(message, "blue+bold")
-  green: (message) => console.log color(message, "green+bold")
-  red:   (message) => console.log color(message, "red+bold")
+  blue:  (parms...) =>
+    parms = parms.map (parm) -> color(parm, "blue+bold")
+    console.log parms...
 
-  error: (message) => @_log 'error', message, 'red+bold', 'Error'
-  warn:  (message) => @_log 'warn',  message, 'yellow'
-  info:  (message) => console.log "#{new Date().toFormat('HH24:MI:SS')} - #{message}"
-  fatal: (message) => @_log 'fatal', "FATAL: #{message}", 'red+bold+underline', "Fatal Error"
-  debug: (message) => @_log 'debug', "#{message}", 'blue' if @isDebug
+  green: (parms...) =>
+    parms = parms.map (parm) -> color(parm, "green+bold")
+    console.log parms...
 
-  success: (message, options) =>
+  red:   (parms...) =>
+    parms = parms.map (parm) -> color(parm, "red+bold")
+    console.log parms...
+
+  error: (parms...) =>
+    @_log 'error', parms, 'red+bold', 'Error'
+
+  warn:  (parms...) =>
+    @_log 'warn',  parms, 'yellow'
+
+  info:  (parms...) =>
+    parms[0] = "#{new Date().toFormat('HH24:MI:SS')} - " + parms[0]
+    console.log parms...
+
+  fatal: (parms...) =>
+    parms[0] = "FATAL: " + parms[0]
+    @_log 'fatal', parms, 'red+bold+underline', "Fatal Error"
+
+  debug: (parms...) =>
+    @_log 'debug', parms, 'blue' if @isDebug
+
+  success: (parms..., options) =>
+    if parms.length is 0
+      parms = [options]
+
     title = if options is true
       "Success"
     else if @config
@@ -59,7 +83,7 @@ class Logger
     else
       "Success"
 
-    @_log 'success', message, 'green+bold', title
+    @_log 'success', parms, 'green+bold', title
 
   defaults: ->
     growl:
