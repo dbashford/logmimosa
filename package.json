@@ -1,7 +1,6 @@
 {
   "name": "logmimosa",
-  "preferGlobal": "false",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "homepage": "http://www.mimosajs.com",
   "author": "David Bashford",
   "description": "Logger component for Mimosa browser development workflow tool",
