@@ -60,7 +60,7 @@ class Logger
     @_log 'fatal', parms, 'red+bold+underline', "Fatal Error"
 
   debug: (parms...) =>
-    @_log 'debug', parms, 'blue' if @isDebug
+    @_log 'debug', parms, 'blue' if @isDebug or process.env.DEBUG
 
   success: (parms..., options) =>
     if parms.length is 0
