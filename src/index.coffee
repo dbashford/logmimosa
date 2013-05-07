@@ -132,4 +132,4 @@ class Logger
         errors.push "lint configuration must be an object."
     errors
 
-module.exports = new Logger
+module.exports = new Logger()
