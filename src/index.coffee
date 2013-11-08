@@ -53,7 +53,7 @@ class Logger
         parms.pop()
 
       @_log 'error', parms, 'red+bold', 'Error'
-      if @config and @config.isBuild and @config.exitOnError and exitIfBuild
+      if @config and @config.exitOnError and exitIfBuild
         console.error("Build is exiting...")
         process.exit(1)
 
