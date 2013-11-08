@@ -48,12 +48,12 @@ class Logger
   error: (parms...) =>
     if parms.length > 0
       lastField = parms[parms.length-1]
-      if typeof lastField is "object"
+      if typeof lastField is "object" and lastField.exitIfBuild?
         exitIfBuild = lastField.exitIfBuild
         parms.pop()
 
       @_log 'error', parms, 'red+bold', 'Error'
-      if @config.isBuild and exitIfBuild
+      if @config and @config.isBuild and exitIfBuild
         console.error("Build is exiting...")
         process.exit(1)
 
