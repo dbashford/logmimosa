@@ -8,7 +8,7 @@ class Logger
   isStartup: true
 
   setDebug: (@isDebug = true) ->
-  setConfig: (config) -> @config = config.growl
+  setConfig: (@config) ->
   buildDone: (@isStartup = false) =>
 
   _log: (logLevel, messages, color, growlTitle = null) ->
@@ -46,7 +46,16 @@ class Logger
     console.log parms...
 
   error: (parms...) =>
-    @_log 'error', parms, 'red+bold', 'Error'
+    if parms.length > 0
+      lastField = parms[parms.length-1]
+      if typeof lastField is "object"
+        exitIfBuild = lastField.exitIfBuild
+        parms.pop()
+
+      @_log 'error', parms, 'red+bold', 'Error'
+      if @config.isBuild and exitIfBuild
+        console.error("Build is exiting...")
+        process.exit(1)
 
   warn:  (parms...) =>
     @_log 'warn',  parms, 'yellow'
@@ -68,9 +77,9 @@ class Logger
 
     title = if options is true
       "Success"
-    else if @config
-      s = @config.onSuccess
-      if @isStartup and not @config.onStartup
+    else if @config?.growl?
+      s = @config.growl.onSuccess
+      if @isStartup and not @config.growl.onStartup
         null
       else if not options or
         (options.isJavascript and s.javascript) or
