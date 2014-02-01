@@ -2,11 +2,13 @@ color = require('ansi-color').set
 growl = require 'growl'
 require 'date-utils'
 
+config = require './config'
+
 isDebug = false
 isStartup = true
-config = null
+mimosaConfig = null
 
-_log = (logLevel, messages, color, growlTitle = null) ->
+_log = (logLevel, messages, color, growlTitle) ->
   if growlTitle?
     imageUrl = switch logLevel
       when 'success' then "#{__dirname}/assets/success.png"
@@ -28,12 +30,14 @@ _wrap = (messages, textColor) ->
   messages[0] = "#{new Date().toFormat('HH24:MI:SS')} - " + messages[0]
   messages.map (message) -> color message, textColor
 
-setDebug = (isDebug = true) ->
+setDebug = (isD = true) ->
+  isDebug = isD
 
 setConfig = (conf) ->
-  config = conf
+  mimosaConfig = conf
 
-buildDone = (isStartup = false) ->
+buildDone = (startup = false) ->
+  isStartup = startup
 
 blue =  (parms...) ->
   parms = parms.map (parm) -> color(parm, "blue+bold")
@@ -55,7 +59,7 @@ error = (parms...) ->
       parms.pop()
 
     _log 'error', parms, 'red+bold', 'Error'
-    if config and config.exitOnError and exitIfBuild
+    if mimosaConfig and mimosaConfig.exitOnError and exitIfBuild
       console.error("Build is exiting...")
       process.exit(1)
 
@@ -79,9 +83,9 @@ success = (parms..., options) ->
 
   title = if options is true
     "Success"
-  else if config?.growl?
-    s = config.growl.onSuccess
-    if isStartup and not config.growl.onStartup
+  else if mimosaConfig?.growl?
+    s = mimosaConfig.growl.onSuccess
+    if isStartup and not mimosaConfig.growl.onStartup
       null
     else if not options or
       (options.isJavascript and s.javascript) or
@@ -97,6 +101,9 @@ success = (parms..., options) ->
   _log 'success', parms, 'green+bold', title
 
 module.exports = {
+  defaults: config.defaults
+  placeholder: config.placeholder
+  validate: config.validate
   success: success
   debug: debug
   fatal: fatal
