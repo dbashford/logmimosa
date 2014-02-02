@@ -4,12 +4,24 @@ require 'date-utils'
 
 config = require './config'
 
-isDebug = false
+doDebug = false
 isStartup = true
 mimosaConfig = null
 
-_log = (logLevel, messages, color, growlTitle) ->
-  if growlTitle?
+setDebug = (isD = true) ->
+  doDebug = isD
+
+isDebug = ->
+  doDebug
+
+setConfig = (conf) ->
+  mimosaConfig = conf
+
+buildDone = (startup = false) ->
+  isStartup = startup
+
+_log = (logLevel, messages, colorText, growlTitle) ->
+  if growlTitle? and (!mimosaConfig or mimosaConfig.logger.growl.enabled)
     imageUrl = switch logLevel
       when 'success' then "#{__dirname}/assets/success.png"
       when 'error' then "#{__dirname}/assets/failed.png"
@@ -19,7 +31,7 @@ _log = (logLevel, messages, color, growlTitle) ->
     growlMessage = messages.join(",").replace /\n/g, ''
     growl growlMessage, {title: growlTitle, image: imageUrl}
 
-  messages = _wrap(messages, color)
+  messages = _wrap(messages, colorText)
 
   if logLevel is 'error' or logLevel is 'warn' or logLevel is 'fatal'
     console.error messages...
@@ -30,14 +42,63 @@ _wrap = (messages, textColor) ->
   messages[0] = "#{new Date().toFormat('HH24:MI:SS')} - " + messages[0]
   messages.map (message) -> color message, textColor
 
-setDebug = (isD = true) ->
-  isDebug = isD
+error = (parms...) ->
+  if parms.length > 0
+    lastField = parms[parms.length-1]
+    if typeof lastField is "object" and lastField.exitIfBuild?
+      exitIfBuild = lastField.exitIfBuild
+      parms.pop()
 
-setConfig = (conf) ->
-  mimosaConfig = conf
+    if !mimosaConfig or mimosaConfig.logger.error.enabled
+      colorText = if mimosaConfig then mimosaConfig.logger.error.color else "red+bold"
+      _log 'error', parms, colorText, 'Error'
 
-buildDone = (startup = false) ->
-  isStartup = startup
+    if mimosaConfig and mimosaConfig.exitOnError and exitIfBuild
+      console.error("Error occurred, exitOnError flag used, build is exiting...")
+      process.exit(1)
+
+warn =  (parms...) ->
+  if !mimosaConfig or mimosaConfig.logger.warn.enabled
+    colorText = if mimosaConfig then mimosaConfig.logger.warn.color else "yellow"
+    _log 'warn',  parms, colorText
+
+info =  (parms...) ->
+  if !mimosaConfig or mimosaConfig.logger.info.enabled
+    if mimosaConfig && mimosaConfig.logger.info.color
+      _log 'info', parms, mimosaConfig.logger.info.color
+    else
+      parms[0] = "#{new Date().toFormat('HH24:MI:SS')} - " + parms[0]
+      console.log parms...
+
+debug = (parms...) ->
+  if doDebug or process.env.DEBUG
+    colorText = if mimosaConfig then mimosaConfig.logger.debug.color else "blue"
+    _log 'debug', parms, colorText
+
+success = (parms..., options) ->
+  if !mimosaConfig or mimosaConfig.logger.success.enabled
+    if parms.length is 0
+      parms = [options]
+
+    title = if options is true
+      "Success"
+    else if mimosaConfig?.logger?.growl?
+      s = mimosaConfig.logger.growl.onSuccess
+      if isStartup and not mimosaConfig.logger.growl.onStartup
+        null
+      else if mimosaConfig.logger.growl.onSuccess
+        "Success"
+      else
+        null
+    else
+      "Success"
+
+    colorText = if mimosaConfig then mimosaConfig.logger.success.color else "green+bold"
+    _log 'success', parms, colorText, title
+
+fatal = (parms...) ->
+  parms[0] = "FATAL: " + parms[0]
+  _log 'fatal', parms, 'red+bold+underline', "Fatal Error"
 
 blue =  (parms...) ->
   parms = parms.map (parm) -> color(parm, "blue+bold")
@@ -51,61 +112,13 @@ red =   (parms...) ->
   parms = parms.map (parm) -> color(parm, "red+bold")
   console.log parms...
 
-error = (parms...) ->
-  if parms.length > 0
-    lastField = parms[parms.length-1]
-    if typeof lastField is "object" and lastField.exitIfBuild?
-      exitIfBuild = lastField.exitIfBuild
-      parms.pop()
-
-    _log 'error', parms, 'red+bold', 'Error'
-    if mimosaConfig and mimosaConfig.exitOnError and exitIfBuild
-      console.error("Build is exiting...")
-      process.exit(1)
-
-warn =  (parms...) ->
-  _log 'warn',  parms, 'yellow'
-
-info =  (parms...) ->
-  parms[0] = "#{new Date().toFormat('HH24:MI:SS')} - " + parms[0]
-  console.log parms...
-
-fatal = (parms...) ->
-  parms[0] = "FATAL: " + parms[0]
-  _log 'fatal', parms, 'red+bold+underline', "Fatal Error"
-
-debug = (parms...) ->
-  _log 'debug', parms, 'blue' if isDebug or process.env.DEBUG
-
-success = (parms..., options) ->
-  if parms.length is 0
-    parms = [options]
-
-  title = if options is true
-    "Success"
-  else if mimosaConfig?.growl?
-    s = mimosaConfig.growl.onSuccess
-    if isStartup and not mimosaConfig.growl.onStartup
-      null
-    else if not options or
-      (options.isJavascript and s.javascript) or
-      (options.isCSS and s.css) or
-      (options.isTemplate and s.template) or
-      (options.isCopy and s.copy)
-        "Success"
-    else
-      null
-  else
-    "Success"
-
-  _log 'success', parms, 'green+bold', title
-
 module.exports = {
   defaults: config.defaults
   placeholder: config.placeholder
   validate: config.validate
   success: success
   debug: debug
+  isDebug: isDebug
   fatal: fatal
   info: info
   warn: warn
