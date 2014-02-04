@@ -44,7 +44,7 @@ _log = (logLevel, messages, colorText, growlTitle) ->
 _colorize = (messages) ->
   messages.map (message) ->
     message.replace /\[\[ (.+?) ]]/g,  (match, path) ->
-      if mimosaConfig.logger.embeddedText.enabled
+      if mimosaConfig and mimosaConfig.logger.embeddedText.enabled
         path = path.replace(mimosaConfig.root + pathh.sep, '')
         color(path, mimosaConfig.logger.embeddedText.color)
       else
