@@ -34,14 +34,14 @@ _log = (logLevel, messages, colorText, growlTitle) ->
     growl growlMessage, {title: growlTitle, image: imageUrl}
 
   _wrap(messages, logLevel, colorText)
-  messages = _colorize(messages, colorText)
+  messages = _colorize(messages)
 
   if logLevel is 'error' or logLevel is 'warn' or logLevel is 'fatal'
     console.error messages...
   else
     console.log messages...
 
-_colorize = (messages, colorText) ->
+_colorize = (messages) ->
   messages.map (message) ->
     message.replace /\[\[ (.+?) ]]/g,  (match, path) ->
       if mimosaConfig.logger.embeddedText.enabled
@@ -55,7 +55,8 @@ _wrap = (messages, logLevel, textColor) ->
     logLevel.toUpperCase()
   else
     logLevel.charAt(0).toUpperCase() + logLevel.slice(1)
-  levelUpper = color(levelUpper, textColor)
+  if textColor
+    levelUpper = color(levelUpper, textColor)
   messages[0] = "#{new Date().toFormat('HH24:MI:SS')} - " +  levelUpper + " - " + messages[0]
 
 error = (parms...) ->
@@ -73,15 +74,15 @@ error = (parms...) ->
       console.error("Error occurred, exitOnError flag used, build is exiting...")
       process.exit(1)
 
-warn =  (parms...) ->
+warn = (parms...) ->
   if !mimosaConfig or mimosaConfig.logger.warn.enabled
     colorText = if mimosaConfig then mimosaConfig.logger.warn.color else "yellow"
     _log 'warn',  parms, colorText
 
-info =  (parms...) ->
+info = (parms...) ->
   if !mimosaConfig or mimosaConfig.logger.info.enabled
-    if mimosaConfig && mimosaConfig.logger.info.color
-      _log 'info', parms, mimosaConfig.logger.info.color
+    if mimosaConfig
+      _log 'info', parms, mimosaConfig.logger.info.color || ''
     else
       parms[0] = "#{new Date().toFormat('HH24:MI:SS')} - " + parms[0]
       console.log parms...
