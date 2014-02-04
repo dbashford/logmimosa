@@ -42,9 +42,12 @@ _log = (logLevel, messages, colorText, growlTitle) ->
     console.log messages...
 
 _colorize = (messages) ->
+  unless mimosaConfig
+    return messages
+
   messages.map (message) ->
     message.replace /\[\[ (.+?) ]]/g,  (match, path) ->
-      if mimosaConfig and mimosaConfig.logger.embeddedText.enabled
+      if mimosaConfig.logger.embeddedText.enabled
         path = path.replace(mimosaConfig.root + pathh.sep, '')
         color(path, mimosaConfig.logger.embeddedText.color)
       else
