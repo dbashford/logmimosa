@@ -1,3 +1,5 @@
+pathh = require 'path'
+
 color = require('ansi-color').set
 growl = require 'growl'
 require 'date-utils'
@@ -31,16 +33,30 @@ _log = (logLevel, messages, colorText, growlTitle) ->
     growlMessage = messages.join(",").replace /\n/g, ''
     growl growlMessage, {title: growlTitle, image: imageUrl}
 
-  messages = _wrap(messages, colorText)
+  _wrap(messages, logLevel, colorText)
+  messages = _colorize(messages, colorText)
 
   if logLevel is 'error' or logLevel is 'warn' or logLevel is 'fatal'
     console.error messages...
   else
     console.log messages...
 
-_wrap = (messages, textColor) ->
-  messages[0] = "#{new Date().toFormat('HH24:MI:SS')} - " + messages[0]
-  messages.map (message) -> color message, textColor
+_colorize = (messages, colorText) ->
+  messages.map (message) ->
+    message.replace /\[\[ (.+?) ]]/g,  (match, path) ->
+      if mimosaConfig.logger.embeddedText.enabled
+        path = path.replace(mimosaConfig.root + pathh.sep, '')
+        color(path, mimosaConfig.logger.embeddedText.color)
+      else
+        match.replace(mimosaConfig.root + pathh.sep, '')
+
+_wrap = (messages, logLevel, textColor) ->
+  levelUpper = if logLevel is "error" or logLevel is "warn" or logLevel is 'fatal'
+    logLevel.toUpperCase()
+  else
+    logLevel.charAt(0).toUpperCase() + logLevel.slice(1)
+  levelUpper = color(levelUpper, textColor)
+  messages[0] = "#{new Date().toFormat('HH24:MI:SS')} - " +  levelUpper + " - " + messages[0]
 
 error = (parms...) ->
   if parms.length > 0

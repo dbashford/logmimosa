@@ -11,11 +11,11 @@ exports.defaults = function() {
       },
       warn: {
         enabled: true,
-        color: 'yellow'
+        color: 'yellow+bold'
       },
       success: {
         enabled: true,
-        color: 'green+bold'
+        color: 'green'
       },
       error: {
         enabled: true,
@@ -23,6 +23,10 @@ exports.defaults = function() {
       },
       debug: {
         color: 'blue'
+      },
+      embeddedText: {
+        enabled: true,
+        color: 'cyan'
       },
       growl: {
         enabled: true,
@@ -51,6 +55,9 @@ exports.placeholder = function() {
          "      # color: 'red+bold'    # color for error level logging, null is default terminal color\n" +
          "    # debug:                 # config for debug level logging, debug is enabled with mimosa -D flag\n" +
          "      # color: 'blue'        # color for debug level logging, null is default terminal color\n" +
+         "    # embeddedText:          # config for text surrounded in [[ ]] inside log messages\n" +
+         "      # enabled: true        # transforms [[ ]] and the text inside to just text inside and colorizes\n" +
+         "      # color: 'cyan'    # color for transformed embedded text\n" +
          "    # growl:                 # Settings for growl notifications\n" +
          "      # enabled: true        # Whether or not growl notificaations are enabled\n" +
          "      # onStartup: false     # Controls whether or not to Growl when assets successfully\n" +
@@ -79,7 +86,7 @@ exports.validate = function ( config, validators ) {
       validators.ifExistsIsBoolean( errors, "logger.growl.onSuccess", grwl.onSuccess );
     }
 
-    ['info', 'warn', 'success', 'error', 'debug'].forEach( function( logLevel ) {
+    ['info', 'warn', 'success', 'error', 'debug', 'embeddedText'].forEach( function( logLevel ) {
       if ( validators.ifExistsIsObject( errors, "logger." + logLevel, config.logger[logLevel] ) ) {
         validators.ifExistsIsBoolean( errors, "logger." + logLevel + ".enabled", config.logger[logLevel].enabled );
         validators.ifExistsIsString( errors, "logger." + logLevel + ".color", config.logger[logLevel].color );
