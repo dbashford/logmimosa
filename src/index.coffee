@@ -46,12 +46,15 @@ _colorize = (messages) ->
     return messages
 
   messages.map (message) ->
-    message.replace /\[\[ (.+?) ]]/g,  (match, path) ->
-      if mimosaConfig.logger.embeddedText.enabled
-        path = path.replace(mimosaConfig.root + pathh.sep, '')
-        color(path, mimosaConfig.logger.embeddedText.color)
-      else
-        match.replace(mimosaConfig.root + pathh.sep, '')
+    if typeof message is "string"
+      message.replace /\[\[ (.+?) ]]/g,  (match, path) ->
+        if mimosaConfig.logger.embeddedText.enabled
+          path = path.replace(mimosaConfig.root + pathh.sep, '')
+          color(path, mimosaConfig.logger.embeddedText.color)
+        else
+          match.replace(mimosaConfig.root + pathh.sep, '')
+    else
+      message
 
 _wrap = (messages, logLevel, textColor) ->
   levelUpper = if logLevel is "error" or logLevel is "warn" or logLevel is 'fatal'
