@@ -109,6 +109,7 @@ success = (parms..., options) ->
 fatal = (parms...) ->
   parms[0] = "FATAL: " + parms[0]
   _log 'fatal', parms, 'red+bold+underline', "Fatal Error"
+  process.exit(1)
 
 blue =  (parms...) ->
   parms = parms.map (parm) -> color(parm, "blue+bold")
